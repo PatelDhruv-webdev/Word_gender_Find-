@@ -12,15 +12,11 @@
         <div class="brand-mark" aria-hidden="true">G</div>
         <div class="brand-text">
           <h1>Gendly</h1>
-          <p>Word Gender Finder · Settings</p>
+          <p>French Word Gender Finder · Settings</p>
         </div>
       </div>
 
       <section class="panel" aria-label="Preferences">
-        <label class="field">
-          <span class="field-label">Default language</span>
-          <select id="default-language" class="select"></select>
-        </label>
 
         <fieldset class="field">
           <legend class="field-label">Theme</legend>
@@ -40,19 +36,23 @@
           </div>
         </fieldset>
 
+        <label class="toggle-row" for="hover-enabled">
+          <span>
+            <span class="field-label">Hover tooltip</span>
+            <span class="field-help">Show gender when hovering over any word on a page.</span>
+          </span>
+          <input id="hover-enabled" type="checkbox" />
+        </label>
+
         <label class="toggle-row" for="context-menu-enabled">
           <span>
-            <span class="field-label">Right-click lookup</span>
-            <span class="field-help">
-              Show a “Find gender” action when text is selected on a page.
-            </span>
+            <span class="field-label">Right-click menu</span>
+            <span class="field-help">Show "Find gender" when text is selected on a page.</span>
           </span>
           <input id="context-menu-enabled" type="checkbox" />
         </label>
 
-        <p id="save-status" class="save-status" aria-live="polite"></p>
-
-        <fieldset class="field" style="border:0;padding:0;margin:24px 0 0">
+        <fieldset class="field" style="border:0;padding:0;margin-top:8px">
           <legend class="field-label">Data</legend>
           <div class="danger-row">
             <div>
@@ -69,9 +69,10 @@
             <button id="clear-favorites" class="btn-danger">Clear</button>
           </div>
         </fieldset>
+
+        <p id="save-status" class="save-status" aria-live="polite"></p>
       </section>
     </main>
-
     <script type="module" src="options.js"></script>
   </body>
 </html>

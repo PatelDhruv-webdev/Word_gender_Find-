@@ -1,6 +1,6 @@
 // Gendly content script — shows gender tooltip on word hover.
 
-const GENDER_COLOR = { m: "#3b82f6", f: "#ec4899", n: "#10b981", pl: "#a855f7" };
+const GENDER_COLOR = { m: "#3b82f6", f: "#ec4899" };
 const HOVER_DELAY = 420;
 const DISMISS_DELAY = 3200;
 
@@ -10,17 +10,18 @@ let dismissTimer = null;
 let hoverTimer = null;
 let lastWord = null;
 let enabled = true;
+let lastMoveTime = 0;
 
 (async () => {
   try {
     const s = await chrome.storage.local.get("settings");
-    enabled = s.settings?.contextMenuEnabled !== false;
+    enabled = s.settings?.hoverEnabled !== false;
   } catch (_) {}
 })();
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== "local" || !changes.settings) return;
-  enabled = changes.settings.newValue?.contextMenuEnabled !== false;
+  enabled = changes.settings.newValue?.hoverEnabled !== false;
 });
 
 // ── Word detection via caretRangeFromPoint ─────────────
@@ -40,17 +41,20 @@ function getWordAtPoint(x, y) {
 
   if (!range || range.startContainer.nodeType !== Node.TEXT_NODE) return null;
 
-  // expand to word boundary
   range.expand("word");
   const word = range.toString().trim().replace(/[.,!?;:"'()\[\]{}<>«»""'']/g, "");
   if (!word || word.length < 2 || word.length > 40) return null;
-  if (/^\d+$/.test(word)) return null; // skip pure numbers
+  if (/^\d+$/.test(word)) return null;
   return word;
 }
 
 // ── Hover listeners ─────────────────────────────────────
 document.addEventListener("mousemove", (e) => {
   if (!enabled) return;
+
+  const now = Date.now();
+  if (now - lastMoveTime < 50) return; // throttle to ~20fps
+  lastMoveTime = now;
 
   const word = getWordAtPoint(e.clientX, e.clientY);
 
@@ -108,7 +112,6 @@ function showTooltip(res, cursorX, cursorY) {
   }
 
   positionTooltip(tip, cursorX, cursorY);
-  getRoot().appendChild(tip);
   activeTooltip = tip;
 
   dismissTimer = setTimeout(() => dismissTooltip(false), DISMISS_DELAY);
@@ -125,11 +128,12 @@ function positionTooltip(tip, cx, cy) {
   let x = cx - tw / 2;
   let y = cy - th - margin;
 
-  if (y < 4) y = cy + margin + 18; // flip below cursor
+  if (y < 4) y = cy + margin + 18;
 
   x = Math.max(margin, Math.min(x, window.innerWidth - tw - margin));
 
-  tip.style.cssText = `left:${x}px;top:${y + window.scrollY}px`;
+  // root is position:fixed — use viewport coords, no scrollY offset
+  tip.style.cssText = `left:${x}px;top:${y}px`;
 }
 
 function dismissTooltip(immediate) {

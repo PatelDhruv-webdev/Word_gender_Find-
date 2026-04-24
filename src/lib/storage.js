@@ -9,8 +9,9 @@ const KEYS = {
 
 const DEFAULTS = {
   settings: {
-    defaultLang: "de",
+    defaultLang: "fr",
     contextMenuEnabled: true,
+    hoverEnabled: true,
     theme: "auto" // auto | light | dark
   },
   history: [],
