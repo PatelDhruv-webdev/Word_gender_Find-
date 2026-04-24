@@ -64,10 +64,9 @@
 
     <template id="tpl-result">
       <div class="card">
-        <div class="card-head">
-          <div class="article-pill">
-            <span class="article"></span>
-            <span class="word"></span>
+        <div class="card-top">
+          <div class="gender-banner">
+            <span class="gender-label"></span>
           </div>
           <div class="card-actions">
             <span class="src-badge" hidden>Wiktionary</span>
@@ -79,20 +78,17 @@
             </button>
           </div>
         </div>
-        <div class="meta-row">
-          <span class="gender-tag"><span class="g-glyph"></span><span class="g-label"></span></span>
-          <span class="dot" aria-hidden="true"></span>
-          <span class="translation"></span>
+        <div class="article-line">
+          <span class="article"></span>
+          <span class="word"></span>
         </div>
-        <div class="detail-grid">
-          <div>
-            <span class="detail-label">Plural</span>
-            <span class="detail-value plural"></span>
-          </div>
-          <div class="example-row">
-            <span class="detail-label">Example</span>
-            <span class="detail-value example"></span>
-          </div>
+        <div class="word-meta">
+          <span class="translation"></span>
+          <span class="plural-chip"><span class="plural-label">pl.</span> <span class="plural"></span></span>
+        </div>
+        <div class="example-row">
+          <span class="detail-label">Example</span>
+          <span class="detail-value example"></span>
         </div>
       </div>
     </template>

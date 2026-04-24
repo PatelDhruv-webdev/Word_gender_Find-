@@ -50,10 +50,17 @@
   flex-shrink: 0;
 }
 
-.gendly-article {
+.gendly-gender {
   font-weight: 800;
-  font-size: 14px;
-  letter-spacing: -0.3px;
+  font-size: 13px;
+  letter-spacing: 0.1px;
+}
+
+.gendly-article {
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: -0.2px;
+  opacity: 0.85;
 }
 
 .gendly-word {

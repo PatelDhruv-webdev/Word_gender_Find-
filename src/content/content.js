@@ -94,17 +94,18 @@ function showTooltip(res, cursorX, cursorY) {
   tip.className = "gendly-tooltip";
   tip.setAttribute("role", "tooltip");
 
+  const genderLabel = res.gender === "m" ? "Masculine" : "Feminine";
+
   const dot = el("span", "gendly-dot", { style: `background:${color}` });
+  const gLabel = el("span", "gendly-gender", { style: `color:${color}`, text: genderLabel });
   const art = el("span", "gendly-article", { style: `color:${color}`, text: res.article });
   const word = el("span", "gendly-word", { text: res.word });
 
-  tip.append(dot, art, word);
+  tip.append(dot, gLabel, el("span", "gendly-sep"), art, word);
 
   if (res.en) {
     tip.append(el("span", "gendly-sep"), el("span", "gendly-en", { text: res.en }));
   }
-
-  tip.append(el("span", "gendly-badge", { text: (res.lang || "").toUpperCase() }));
 
   positionTooltip(tip, cursorX, cursorY);
   getRoot().appendChild(tip);

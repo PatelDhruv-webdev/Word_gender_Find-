@@ -198,24 +198,27 @@ async function renderResult(res) {
   const card = tpl.querySelector(".card");
   card.style.setProperty("--gender-color", meta.color);
 
+  // gender banner — the first thing eyes land on
+  tpl.querySelector(".gender-label").textContent = meta.label;
+
+  // article + word
   tpl.querySelector(".article").textContent = res.article;
   tpl.querySelector(".word").textContent = res.word;
-  tpl.querySelector(".g-glyph").textContent = meta.glyph;
-  tpl.querySelector(".g-label").textContent = meta.label;
+
+  // translation + plural
   tpl.querySelector(".translation").textContent = res.en || "";
   tpl.querySelector(".plural").textContent = res.plural || "—";
 
+  // example (hide row if none)
   const exRow = tpl.querySelector(".example-row");
-  const exVal = tpl.querySelector(".example");
   if (res.example) {
-    exVal.textContent = res.example;
+    tpl.querySelector(".example").textContent = res.example;
   } else {
     exRow.hidden = true;
   }
 
-  // show "Wiktionary" badge when result comes from the API
-  const srcBadge = tpl.querySelector(".src-badge");
-  if (res.src === "wiki") srcBadge.hidden = false;
+  // Wiktionary badge
+  if (res.src === "wiki") tpl.querySelector(".src-badge").hidden = false;
 
   const favBtn = tpl.querySelector(".fav-btn");
   const fav = await isFavorite("fr", res.word);

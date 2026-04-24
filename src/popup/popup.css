@@ -228,30 +228,41 @@ button { font: inherit; color: inherit; cursor: pointer; }
   background: var(--bg-elev);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  padding: 14px 16px 16px;
+  padding: 0 0 14px;
   box-shadow: var(--shadow);
-  position: relative;
   overflow: hidden;
   animation: pop 0.18s ease-out;
-}
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 4px;
-  background: var(--gender-color, var(--accent));
-  opacity: 0.95;
 }
 @keyframes pop {
   from { opacity: 0; transform: translateY(4px) scale(0.98); }
   to   { opacity: 1; transform: none; }
 }
 
-.card-head {
+/* gender banner — the #1 thing user sees */
+.card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  padding: 12px 14px 10px;
+  background: color-mix(in srgb, var(--gender-color) 12%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--gender-color) 20%, transparent);
+  margin-bottom: 12px;
+}
+.gender-banner { display: flex; align-items: center; gap: 10px; }
+.gender-label {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--gender-color);
+}
+
+/* article + word */
+.article-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0 16px;
+  flex-wrap: wrap;
 }
 .article-pill {
   display: inline-flex;
@@ -261,15 +272,15 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .article {
   font-weight: 800;
-  font-size: 28px;
-  letter-spacing: -0.6px;
+  font-size: 30px;
+  letter-spacing: -0.7px;
   color: var(--gender-color, var(--accent));
   line-height: 1;
 }
 .word {
   font-weight: 600;
-  font-size: 22px;
-  letter-spacing: -0.4px;
+  font-size: 24px;
+  letter-spacing: -0.5px;
   color: var(--text);
   line-height: 1;
 }
@@ -278,56 +289,47 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .fav-btn.is-fav { color: var(--accent-2); }
 .fav-btn.is-fav .fav-path { fill: currentColor; }
 
-.meta-row {
+/* translation + plural on one row */
+.word-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-  font-size: 12.5px;
-  color: var(--text-soft);
+  gap: 10px;
+  padding: 8px 16px 0;
   flex-wrap: wrap;
 }
-.gender-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--gender-color) 14%, transparent);
-  color: var(--gender-color);
-  font-weight: 600;
-  font-size: 11.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
+.translation {
+  font-style: italic;
+  color: var(--text-soft);
+  font-size: 13.5px;
+  flex: 1;
 }
-.g-glyph { font-size: 12px; }
-.dot {
-  width: 3px; height: 3px;
-  border-radius: 50%;
-  background: var(--text-mute);
-  display: inline-block;
+.plural-chip {
+  font-size: 12px;
+  color: var(--text-mute);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 8px;
+  white-space: nowrap;
 }
-.translation { font-style: italic; }
+.plural-label { font-weight: 600; margin-right: 3px; }
 
-.detail-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
+.example-row {
+  margin: 10px 16px 0;
+  padding-top: 10px;
   border-top: 1px dashed var(--border);
 }
 .detail-label {
   display: block;
-  font-size: 10.5px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.7px;
   color: var(--text-mute);
-  margin-bottom: 2px;
+  margin-bottom: 3px;
   font-weight: 600;
 }
 .detail-value {
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--text);
   line-height: 1.4;
 }
