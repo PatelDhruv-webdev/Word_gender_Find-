@@ -1,27 +1,84 @@
-// Gendly content script — shows inline gender tooltip on double-click selection.
-// Uses message passing to background for dictionary lookups.
+// Gendly content script — shows gender tooltip on word hover.
 
 const GENDER_COLOR = { m: "#3b82f6", f: "#ec4899", n: "#10b981", pl: "#a855f7" };
-const DISMISS_DELAY = 4000;
+const HOVER_DELAY = 420;   // ms before showing tooltip
+const DISMISS_DELAY = 3200;
 
 let root = null;
 let activeTooltip = null;
 let dismissTimer = null;
+let hoverTimer = null;
+let lastWord = null;
 let enabled = true;
+let currentLang = "de";
 
+// load settings once on init
 (async () => {
   try {
     const s = await chrome.storage.local.get("settings");
     enabled = s.settings?.contextMenuEnabled !== false;
-  } catch (_) { /* keep enabled = true if storage unavailable */ }
+    currentLang = s.settings?.defaultLang || "de";
+  } catch (_) {}
 })();
 
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && changes.settings) {
-    enabled = changes.settings.newValue?.contextMenuEnabled !== false;
-  }
+  if (area !== "local" || !changes.settings) return;
+  enabled = changes.settings.newValue?.contextMenuEnabled !== false;
+  currentLang = changes.settings.newValue?.defaultLang || currentLang;
 });
 
+// ── Word detection via caretRangeFromPoint ─────────────
+function getWordAtPoint(x, y) {
+  let range;
+  try {
+    if (document.caretRangeFromPoint) {
+      range = document.caretRangeFromPoint(x, y);
+    } else if (document.caretPositionFromPoint) {
+      const pos = document.caretPositionFromPoint(x, y);
+      if (!pos) return null;
+      range = document.createRange();
+      range.setStart(pos.offsetNode, pos.offset);
+      range.collapse(true);
+    }
+  } catch (_) { return null; }
+
+  if (!range || range.startContainer.nodeType !== Node.TEXT_NODE) return null;
+
+  // expand to word boundary
+  range.expand("word");
+  const word = range.toString().trim().replace(/[.,!?;:"'()\[\]{}<>«»""'']/g, "");
+  if (!word || word.length < 2 || word.length > 40) return null;
+  if (/^\d+$/.test(word)) return null; // skip pure numbers
+  return word;
+}
+
+// ── Hover listeners ─────────────────────────────────────
+document.addEventListener("mousemove", (e) => {
+  if (!enabled) return;
+
+  const word = getWordAtPoint(e.clientX, e.clientY);
+
+  if (!word || word === lastWord) return;
+  lastWord = word;
+
+  clearTimeout(hoverTimer);
+  hoverTimer = setTimeout(async () => {
+    const res = await chrome.runtime.sendMessage({ type: "lookup", word, lang: currentLang });
+    if (!res?.ok) return; // silently skip unknown words on hover
+    showTooltip(res, e.clientX, e.clientY);
+  }, HOVER_DELAY);
+});
+
+document.addEventListener("mouseleave", () => {
+  clearTimeout(hoverTimer);
+  lastWord = null;
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") dismissTooltip(true);
+});
+
+// ── Tooltip rendering ───────────────────────────────────
 function getRoot() {
   if (!root) {
     root = document.createElement("div");
@@ -31,137 +88,67 @@ function getRoot() {
   return root;
 }
 
-function getLang() {
-  try {
-    const stored = JSON.parse(
-      localStorage.getItem("gendly-settings") || "{}"
-    );
-    return stored.defaultLang || "de";
-  } catch (_) { return "de"; }
-}
-
-document.addEventListener("dblclick", async (e) => {
-  if (!enabled) return;
-
-  const sel = window.getSelection();
-  const word = sel?.toString().trim().split(/\s+/)[0] || "";
-  if (!word || word.length > 40) return;
-
-  const range = sel.getRangeAt(0);
-  const rect = range.getBoundingClientRect();
-
-  let lang = "de";
-  try {
-    const s = await chrome.storage.local.get("settings");
-    lang = s.settings?.defaultLang || "de";
-  } catch (_) {}
-
-  const res = await chrome.runtime.sendMessage({ type: "lookup", word, lang });
-  showTooltip(res, rect);
-});
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") dismissTooltip(true);
-});
-
-document.addEventListener("click", (e) => {
-  if (activeTooltip && !activeTooltip.contains(e.target)) {
-    dismissTooltip(false);
-  }
-});
-
-function showTooltip(res, targetRect) {
+function showTooltip(res, cursorX, cursorY) {
   clearTimeout(dismissTimer);
   if (activeTooltip) activeTooltip.remove();
+
+  const color = GENDER_COLOR[res.gender] || "#7c3aed";
 
   const tip = document.createElement("div");
   tip.className = "gendly-tooltip";
   tip.setAttribute("role", "tooltip");
-  tip.setAttribute("aria-live", "polite");
 
-  if (res?.ok) {
-    const color = GENDER_COLOR[res.gender] || "#7c3aed";
+  const dot = el("span", "gendly-dot", { style: `background:${color}` });
+  const art = el("span", "gendly-article", { style: `color:${color}`, text: res.article });
+  const word = el("span", "gendly-word", { text: res.word });
 
-    const dot = document.createElement("span");
-    dot.className = "gendly-dot";
-    dot.style.background = color;
+  tip.append(dot, art, word);
 
-    const art = document.createElement("span");
-    art.className = "gendly-article";
-    art.style.color = color;
-    art.textContent = res.article;
-
-    const word = document.createElement("span");
-    word.className = "gendly-word";
-    word.textContent = res.word;
-
-    tip.appendChild(dot);
-    tip.appendChild(art);
-    tip.appendChild(word);
-
-    if (res.en) {
-      const sep = document.createElement("span");
-      sep.className = "gendly-sep";
-      const en = document.createElement("span");
-      en.className = "gendly-en";
-      en.textContent = res.en;
-      tip.appendChild(sep);
-      tip.appendChild(en);
-    }
-
-    const badge = document.createElement("span");
-    badge.className = "gendly-badge";
-    badge.textContent = (res.lang || "").toUpperCase();
-    tip.appendChild(badge);
-  } else {
-    const msg = document.createElement("span");
-    msg.className = "gendly-not-found";
-    msg.textContent = `"${res?.word || "?"}" not found`;
-    tip.appendChild(msg);
+  if (res.en) {
+    tip.append(el("span", "gendly-sep"), el("span", "gendly-en", { text: res.en }));
   }
 
-  positionTooltip(tip, targetRect);
+  tip.append(el("span", "gendly-badge", { text: (res.lang || "").toUpperCase() }));
+
+  positionTooltip(tip, cursorX, cursorY);
   getRoot().appendChild(tip);
   activeTooltip = tip;
 
   dismissTimer = setTimeout(() => dismissTooltip(false), DISMISS_DELAY);
 }
 
-function positionTooltip(tip, rect) {
-  // temporarily visible off-screen to measure size
-  tip.style.visibility = "hidden";
-  tip.style.left = "0px";
-  tip.style.top = "0px";
+function positionTooltip(tip, cx, cy) {
+  tip.style.cssText = "visibility:hidden;left:0;top:0";
   getRoot().appendChild(tip);
 
   const tw = tip.offsetWidth;
   const th = tip.offsetHeight;
-  const margin = 8;
+  const margin = 12;
 
-  let x = rect.left + rect.width / 2 - tw / 2;
-  let y = rect.top - th - margin + window.scrollY;
+  let x = cx - tw / 2;
+  let y = cy - th - margin;
 
-  // flip below if clipped at top
-  if (rect.top - th - margin < 0) y = rect.bottom + margin + window.scrollY;
+  if (y < 4) y = cy + margin + 18; // flip below cursor
 
-  // clamp x to viewport
   x = Math.max(margin, Math.min(x, window.innerWidth - tw - margin));
 
-  tip.style.left = `${x}px`;
-  tip.style.top = `${y}px`;
-  tip.style.visibility = "";
+  tip.style.cssText = `left:${x}px;top:${y + window.scrollY}px`;
 }
 
 function dismissTooltip(immediate) {
   clearTimeout(dismissTimer);
   if (!activeTooltip) return;
-  if (immediate) {
-    activeTooltip.remove();
-    activeTooltip = null;
-    return;
-  }
+  if (immediate) { activeTooltip.remove(); activeTooltip = null; return; }
   activeTooltip.classList.add("gendly-dismiss");
   const old = activeTooltip;
-  setTimeout(() => { old.remove(); }, 130);
+  setTimeout(() => old.remove(), 130);
   activeTooltip = null;
+}
+
+function el(tag, cls, opts = {}) {
+  const e = document.createElement(tag);
+  e.className = cls;
+  if (opts.text) e.textContent = opts.text;
+  if (opts.style) e.style.cssText = opts.style;
+  return e;
 }

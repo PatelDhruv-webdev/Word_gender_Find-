@@ -26,8 +26,16 @@ async function loadDict(lang) {
   return data;
 }
 
+const ARTICLE_RE = /^(der|die|das|le|la|les|l'|el|los|las|il|lo|gli|le|un|une|ein|eine|einer|einem|einen|einem)\s+/i;
+
 function normalize(word) {
-  return (word || "").trim().toLowerCase().replace(/[.,!?;:"'()]/g, "");
+  return (word || "").trim().toLowerCase()
+    .replace(/[.,!?;:"'()\[\]{}«»""'']/g, "")
+    .replace(/\s+/g, " ");
+}
+
+function stripArticle(key) {
+  return key.replace(ARTICLE_RE, "").trim();
 }
 
 function articleFor(dict, gender) {
@@ -37,28 +45,30 @@ function articleFor(dict, gender) {
 
 export async function lookup(word, lang) {
   const dict = await loadDict(lang);
-  const key = normalize(word);
-  if (!key) return { ok: false, reason: "empty" };
+  const raw = normalize(word);
+  if (!raw) return { ok: false, reason: "empty" };
 
-  // direct hit
-  let entry = dict.words[key];
-  let matchedKey = key;
+  // build candidate keys to try in order
+  const candidates = new Set([
+    raw,
+    stripArticle(raw),
+    raw.replace(/-/g, ""),          // hyphenated compounds
+  ]);
 
-  // try stripping common articles ("der haus", "le chien", "la casa")
-  if (!entry) {
-    const stripped = key.replace(/^(der|die|das|le|la|les|el|los|las|il|lo|gli)\s+/, "");
-    if (stripped !== key && dict.words[stripped]) {
-      entry = dict.words[stripped];
-      matchedKey = stripped;
-    }
+  let entry = null;
+  let matchedKey = raw;
+
+  for (const key of candidates) {
+    if (dict.words[key]) { entry = dict.words[key]; matchedKey = key; break; }
   }
 
-  // suggestion: prefix match (only if no direct)
   if (!entry) {
-    const candidates = Object.keys(dict.words)
-      .filter((k) => k.startsWith(key.slice(0, 3)))
-      .slice(0, 5);
-    return { ok: false, reason: "not_found", suggestions: candidates, lang };
+    // prefix suggestions (min 2 chars prefix)
+    const prefix = raw.slice(0, Math.max(2, raw.length - 1));
+    const suggestions = Object.keys(dict.words)
+      .filter((k) => k.startsWith(prefix))
+      .slice(0, 6);
+    return { ok: false, reason: "not_found", suggestions, lang, word: raw };
   }
 
   return {
