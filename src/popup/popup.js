@@ -1,4 +1,4 @@
-import { lookup, suggest, LANGUAGES, GENDER_META } from "../lib/lookup.js";
+import { lookup, suggest, GENDER_META } from "../lib/lookup.js";
 import {
   consumePendingLookup,
   getFavorites,
@@ -14,7 +14,6 @@ const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
 const state = {
-  lang: "de",
   query: "",
   tab: "recent",
   suggestionIndex: -1,
@@ -22,7 +21,6 @@ const state = {
 };
 
 const els = {
-  langs: $$(".lang"),
   input: $("#word-input"),
   inputWrap: $(".input-wrap"),
   clear: $("#clear-btn"),
@@ -36,9 +34,7 @@ const els = {
 // ── init ───────────────────────────────────────────────
 async function init() {
   const settings = await getSettings();
-  state.lang = settings.defaultLang || "de";
   applyTheme(settings.theme);
-  setActiveLang(state.lang, { persist: false });
   renderEmpty();
   await renderList();
 
@@ -59,30 +55,12 @@ function applyTheme(theme) {
   document.documentElement.dataset.theme = theme || "auto";
 }
 
-function setActiveLang(lang, { persist = true } = {}) {
-  state.lang = lang;
-  els.langs.forEach((b) => b.classList.toggle("is-active", b.dataset.lang === lang));
-  if (persist) {
-    setSettings({ defaultLang: lang });
-  }
-  if (state.query) handleQuery(state.query, { commit: false });
-  renderList();
-}
-
 // ── events ─────────────────────────────────────────────
-els.langs.forEach((btn) =>
-  btn.addEventListener("click", () => setActiveLang(btn.dataset.lang))
-);
-
 els.input.addEventListener("input", (e) => {
   const v = e.target.value;
   els.inputWrap.classList.toggle("has-text", v.length > 0);
   state.query = v;
-  if (!v) {
-    hideSuggestions();
-    renderEmpty();
-    return;
-  }
+  if (!v) { hideSuggestions(); renderEmpty(); return; }
   handleQuery(v, { commit: false });
 });
 
@@ -95,15 +73,9 @@ els.input.addEventListener("keydown", (e) => {
       handleQuery(els.input.value, { commit: true });
       hideSuggestions();
     }
-  } else if (e.key === "ArrowDown") {
-    e.preventDefault();
-    moveSuggestion(1);
-  } else if (e.key === "ArrowUp") {
-    e.preventDefault();
-    moveSuggestion(-1);
-  } else if (e.key === "Escape") {
-    hideSuggestions();
-  }
+  } else if (e.key === "ArrowDown") { e.preventDefault(); moveSuggestion(1); }
+  else if (e.key === "ArrowUp")    { e.preventDefault(); moveSuggestion(-1); }
+  else if (e.key === "Escape")     { hideSuggestions(); }
 });
 
 els.clear.addEventListener("click", () => {
@@ -116,9 +88,8 @@ els.clear.addEventListener("click", () => {
 });
 
 document.addEventListener("click", (e) => {
-  if (!els.suggestions.contains(e.target) && e.target !== els.input) {
+  if (!els.suggestions.contains(e.target) && e.target !== els.input)
     hideSuggestions();
-  }
 });
 
 els.tabs.forEach((t) =>
@@ -133,31 +104,35 @@ els.options.addEventListener("click", () => chrome.runtime.openOptionsPage());
 
 // ── querying ───────────────────────────────────────────
 let queryToken = 0;
+
 async function handleQuery(word, { commit }) {
   state.query = word;
   const myToken = ++queryToken;
 
-  if (!commit && word.length >= 1 && word.length <= 12) {
-    const items = await suggest(word, state.lang);
+  // autocomplete suggestions (local dict only, fast)
+  if (!commit && word.length >= 1 && word.length <= 14) {
+    const items = await suggest(word);
     if (myToken !== queryToken) return;
-    if (items.length && word.length < 24) showSuggestions(items);
-    else hideSuggestions();
+    items.length ? showSuggestions(items) : hideSuggestions();
   } else {
     hideSuggestions();
   }
 
-  const res = await lookup(word, state.lang);
+  // show loading shimmer for Wiktionary queries (> ~300ms)
+  const shimmerTimer = setTimeout(() => {
+    if (myToken === queryToken) els.result.classList.add("loading");
+  }, 280);
+
+  const res = await lookup(word);
+  clearTimeout(shimmerTimer);
+  els.result.classList.remove("loading");
+
   if (myToken !== queryToken) return;
+
   if (res.ok) {
     renderResult(res);
     if (commit) {
-      pushHistory({
-        lang: res.lang,
-        word: res.word,
-        article: res.article,
-        gender: res.gender,
-        en: res.en
-      });
+      pushHistory({ word: res.word, article: res.article, gender: res.gender, en: res.en });
       renderList();
     }
   } else if (commit || word.length >= 3) {
@@ -171,17 +146,11 @@ function showSuggestions(items) {
   state.suggestionItems = items;
   state.suggestionIndex = -1;
   els.suggestions.innerHTML = items
-    .map(
-      (w) =>
-        `<li data-word="${w}"><span>${w}</span><span class="s-art">${state.lang.toUpperCase()}</span></li>`
-    )
+    .map((w) => `<li data-word="${w}"><span>${w}</span><span class="s-art">FR</span></li>`)
     .join("");
   els.suggestions.hidden = false;
   $$("#suggestions li").forEach((li) =>
-    li.addEventListener("mousedown", (e) => {
-      e.preventDefault();
-      pickSuggestion(li.dataset.word);
-    })
+    li.addEventListener("mousedown", (e) => { e.preventDefault(); pickSuggestion(li.dataset.word); })
   );
 }
 
@@ -194,8 +163,7 @@ function hideSuggestions() {
 function moveSuggestion(delta) {
   if (!state.suggestionItems.length) return;
   state.suggestionIndex =
-    (state.suggestionIndex + delta + state.suggestionItems.length) %
-    state.suggestionItems.length;
+    (state.suggestionIndex + delta + state.suggestionItems.length) % state.suggestionItems.length;
   $$("#suggestions li").forEach((li, i) =>
     li.classList.toggle("is-active", i === state.suggestionIndex)
   );
@@ -236,19 +204,24 @@ async function renderResult(res) {
   tpl.querySelector(".g-label").textContent = meta.label;
   tpl.querySelector(".translation").textContent = res.en || "";
   tpl.querySelector(".plural").textContent = res.plural || "—";
-  tpl.querySelector(".example").textContent = res.example || "—";
+
+  const exRow = tpl.querySelector(".example-row");
+  const exVal = tpl.querySelector(".example");
+  if (res.example) {
+    exVal.textContent = res.example;
+  } else {
+    exRow.hidden = true;
+  }
+
+  // show "Wiktionary" badge when result comes from the API
+  const srcBadge = tpl.querySelector(".src-badge");
+  if (res.src === "wiki") srcBadge.hidden = false;
 
   const favBtn = tpl.querySelector(".fav-btn");
-  const fav = await isFavorite(res.lang, res.word);
+  const fav = await isFavorite("fr", res.word);
   favBtn.classList.toggle("is-fav", fav);
   favBtn.addEventListener("click", async () => {
-    const now = await toggleFavorite({
-      lang: res.lang,
-      word: res.word,
-      article: res.article,
-      gender: res.gender,
-      en: res.en
-    });
+    const now = await toggleFavorite({ lang: "fr", word: res.word, article: res.article, gender: res.gender, en: res.en });
     favBtn.classList.toggle("is-fav", now);
     if (state.tab === "favorites") renderList();
   });
@@ -260,7 +233,9 @@ function renderNotFound(res) {
   els.result.innerHTML = "";
   const tpl = $("#tpl-not-found").content.cloneNode(true);
   const row = tpl.querySelector(".suggest-row");
-  if (res.suggestions && res.suggestions.length) {
+  const wikiMsg = tpl.querySelector(".nf-wiki");
+
+  if (res.suggestions?.length) {
     res.suggestions.forEach((w) => {
       const b = document.createElement("button");
       b.className = "chip";
@@ -273,36 +248,38 @@ function renderNotFound(res) {
       row.appendChild(b);
     });
   } else {
-    row.innerHTML = '<span class="hint">No close matches</span>';
+    row.remove();
   }
+  // Wiktionary was already tried in lookup(); it returned not-found
+  wikiMsg.textContent = "Not found in Wiktionary either.";
+
   els.result.appendChild(tpl);
 }
 
 async function renderList() {
   const data = state.tab === "recent" ? await getHistory() : await getFavorites();
-  if (!data.length) {
+  const frOnly = data.filter((e) => !e.lang || e.lang === "fr");
+
+  if (!frOnly.length) {
     els.list.innerHTML = `<div class="list-empty">${
       state.tab === "recent"
-        ? "No lookups yet — search above to get started."
+        ? "No lookups yet — type a word above."
         : "Star a word to save it here."
     }</div>`;
     return;
   }
-  els.list.innerHTML = data
-    .map((e) => {
-      const meta = GENDER_META[e.gender] || GENDER_META.m;
-      return `<div class="list-item" data-word="${e.word}" data-lang="${e.lang}"
-                style="--li-color:${meta.color}">
-        <span class="li-art">${e.article || ""}</span>
-        <span class="li-word">${e.word}</span>
-        <span class="li-en">${e.en || ""}</span>
-        <span class="li-lang">${e.lang.toUpperCase()}</span>
-      </div>`;
-    })
-    .join("");
+
+  els.list.innerHTML = frOnly.map((e) => {
+    const meta = GENDER_META[e.gender] || GENDER_META.m;
+    return `<div class="list-item" data-word="${e.word}" style="--li-color:${meta.color}">
+      <span class="li-art">${e.article || ""}</span>
+      <span class="li-word">${e.word}</span>
+      <span class="li-en">${e.en || ""}</span>
+    </div>`;
+  }).join("");
+
   els.list.querySelectorAll(".list-item").forEach((it) =>
     it.addEventListener("click", () => {
-      setActiveLang(it.dataset.lang);
       els.input.value = it.dataset.word;
       els.inputWrap.classList.add("has-text");
       handleQuery(it.dataset.word, { commit: false });

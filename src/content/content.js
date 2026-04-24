@@ -1,7 +1,7 @@
 // Gendly content script — shows gender tooltip on word hover.
 
 const GENDER_COLOR = { m: "#3b82f6", f: "#ec4899", n: "#10b981", pl: "#a855f7" };
-const HOVER_DELAY = 420;   // ms before showing tooltip
+const HOVER_DELAY = 420;
 const DISMISS_DELAY = 3200;
 
 let root = null;
@@ -10,21 +10,17 @@ let dismissTimer = null;
 let hoverTimer = null;
 let lastWord = null;
 let enabled = true;
-let currentLang = "de";
 
-// load settings once on init
 (async () => {
   try {
     const s = await chrome.storage.local.get("settings");
     enabled = s.settings?.contextMenuEnabled !== false;
-    currentLang = s.settings?.defaultLang || "de";
   } catch (_) {}
 })();
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== "local" || !changes.settings) return;
   enabled = changes.settings.newValue?.contextMenuEnabled !== false;
-  currentLang = changes.settings.newValue?.defaultLang || currentLang;
 });
 
 // ── Word detection via caretRangeFromPoint ─────────────
@@ -63,8 +59,8 @@ document.addEventListener("mousemove", (e) => {
 
   clearTimeout(hoverTimer);
   hoverTimer = setTimeout(async () => {
-    const res = await chrome.runtime.sendMessage({ type: "lookup", word, lang: currentLang });
-    if (!res?.ok) return; // silently skip unknown words on hover
+    const res = await chrome.runtime.sendMessage({ type: "lookup", word });
+    if (!res?.ok) return;
     showTooltip(res, e.clientX, e.clientY);
   }, HOVER_DELAY);
 });
