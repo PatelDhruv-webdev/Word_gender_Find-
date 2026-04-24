@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gendly</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">G</span>
+        <span class="brand-name">Gendly</span>
+      </div>
+      <div class="lang-switch" role="tablist" aria-label="Language">
+        <button class="lang" data-lang="de" role="tab" title="German">DE</button>
+        <button class="lang" data-lang="fr" role="tab" title="French">FR</button>
+        <button class="lang" data-lang="es" role="tab" title="Spanish">ES</button>
+        <button class="lang" data-lang="it" role="tab" title="Italian">IT</button>
+      </div>
+    </header>
+
+    <section class="search">
+      <div class="input-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+          <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input
+          id="word-input"
+          type="text"
+          autocomplete="off"
+          autocapitalize="none"
+          spellcheck="false"
+          placeholder="Type a word…"
+          aria-label="Word to look up"
+        />
+        <button id="clear-btn" class="icon-btn" title="Clear" aria-label="Clear">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <ul id="suggestions" class="suggestions" hidden></ul>
+    </section>
+
+    <main id="result" class="result"></main>
+
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab is-active" data-tab="recent" role="tab">Recent</button>
+      <button class="tab" data-tab="favorites" role="tab">Favorites</button>
+    </nav>
+    <section id="list" class="list"></section>
+
+    <footer class="footer">
+      <button id="open-options" class="link-btn">Settings</button>
+      <span class="hint">Right-click any word on a page → <em>Find gender</em></span>
+    </footer>
+
+    <template id="tpl-empty">
+      <div class="empty">
+        <div class="empty-emoji" aria-hidden="true">✨</div>
+        <p class="empty-title">Find any word's gender</p>
+        <p class="empty-sub">Try <button class="chip" data-try="haus">haus</button>
+          <button class="chip" data-try="maison">maison</button>
+          <button class="chip" data-try="casa">casa</button></p>
+      </div>
+    </template>
+
+    <template id="tpl-result">
+      <div class="card">
+        <div class="card-head">
+          <div class="article-pill">
+            <span class="article"></span>
+            <span class="word"></span>
+          </div>
+          <button class="fav-btn icon-btn" title="Save to favorites" aria-label="Save to favorites">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path class="fav-path" d="M12 2.5l3 6.5 7 .9-5 4.8 1.3 7L12 18.3 5.7 21.7 7 14.7 2 9.9l7-.9z"
+                    fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="meta-row">
+          <span class="gender-tag"><span class="g-glyph"></span><span class="g-label"></span></span>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="translation"></span>
+        </div>
+        <div class="detail-grid">
+          <div>
+            <span class="detail-label">Plural</span>
+            <span class="detail-value plural"></span>
+          </div>
+          <div>
+            <span class="detail-label">Example</span>
+            <span class="detail-value example"></span>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template id="tpl-not-found">
+      <div class="card not-found">
+        <div class="not-found-emoji">🤔</div>
+        <p class="nf-title">Not in our dictionary</p>
+        <p class="nf-sub">Try one of these instead:</p>
+        <div class="suggest-row"></div>
+      </div>
+    </template>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

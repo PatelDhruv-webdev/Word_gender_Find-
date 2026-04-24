@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gendly Settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main class="page">
+      <div class="brand-header">
+        <div class="brand-mark" aria-hidden="true">G</div>
+        <div class="brand-text">
+          <h1>Gendly</h1>
+          <p>Word Gender Finder · Settings</p>
+        </div>
+      </div>
+
+      <section class="panel" aria-label="Preferences">
+        <label class="field">
+          <span class="field-label">Default language</span>
+          <select id="default-language" class="select"></select>
+        </label>
+
+        <fieldset class="field">
+          <legend class="field-label">Theme</legend>
+          <div class="theme-grid" id="theme-options">
+            <label class="theme-option">
+              <input type="radio" name="theme" value="auto" />
+              <span>Auto</span>
+            </label>
+            <label class="theme-option">
+              <input type="radio" name="theme" value="light" />
+              <span>Light</span>
+            </label>
+            <label class="theme-option">
+              <input type="radio" name="theme" value="dark" />
+              <span>Dark</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <label class="toggle-row" for="context-menu-enabled">
+          <span>
+            <span class="field-label">Right-click lookup</span>
+            <span class="field-help">
+              Show a “Find gender” action when text is selected on a page.
+            </span>
+          </span>
+          <input id="context-menu-enabled" type="checkbox" />
+        </label>
+
+        <p id="save-status" class="save-status" aria-live="polite"></p>
+
+        <fieldset class="field" style="border:0;padding:0;margin:24px 0 0">
+          <legend class="field-label">Data</legend>
+          <div class="danger-row">
+            <div>
+              <span class="field-label" style="text-transform:none;font-size:14px">Clear history</span>
+              <span class="field-help">Remove all recent lookups.</span>
+            </div>
+            <button id="clear-history" class="btn-danger">Clear</button>
+          </div>
+          <div class="danger-row">
+            <div>
+              <span class="field-label" style="text-transform:none;font-size:14px">Clear favorites</span>
+              <span class="field-help">Remove all starred words.</span>
+            </div>
+            <button id="clear-favorites" class="btn-danger">Clear</button>
+          </div>
+        </fieldset>
+      </section>
+    </main>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

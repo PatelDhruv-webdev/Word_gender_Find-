@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Gendly — Word Gender Finder",
+  "short_name": "Gendly",
+  "version": "0.1.0",
+  "description": "Instantly find the grammatical gender of words in German, French, Spanish and Italian. Right-click or search.",
+  "default_locale": "en",
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "Gendly — find word gender",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "background": {
+    "service_worker": "src/background/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/content.js"],
+      "css": ["src/content/content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": ["contextMenus", "storage", "activeTab"],
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": true
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["src/data/*.json"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
