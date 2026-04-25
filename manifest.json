@@ -3,7 +3,7 @@
   "name": "Gendly — Word Gender Finder",
   "short_name": "Gendly",
   "version": "0.1.0",
-  "description": "Instantly find the grammatical gender of words in German, French, Spanish and Italian. Right-click or search.",
+  "description": "Instantly find the grammatical gender of French words. Hover over any word or search in the popup. 1700+ words with Wiktionary fallback.",
   "action": {
     "default_popup": "src/popup/popup.html",
     "default_title": "Gendly — find word gender",
