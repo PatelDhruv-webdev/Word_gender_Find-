@@ -185,6 +185,12 @@ function showTooltip(res, cursorX, cursorY) {
     tip.append(mkEl("span", "gendly-sep"), mkEl("span", "gendly-en", { text: res.en }));
   }
 
+  if (res.alt) {
+    const altArt = VOWEL_RE.test(res.word) ? "l'" : (res.alt.g === "m" ? "le" : "la");
+    const altLabel = res.alt.g === "m" ? "masc." : "fém.";
+    tip.append(mkEl("span", "gendly-alt", { text: `· also ${altLabel}: ${altArt} (${res.alt.en})` }));
+  }
+
   // Attach hidden first so the browser renders it and we can measure size
   const r = getRoot();
   tip.style.visibility = "hidden";

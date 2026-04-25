@@ -89,6 +89,14 @@
   font-style: italic;
 }
 
+.gendly-alt {
+  color: rgba(255,255,255,0.32);
+  font-size: 11px;
+  font-style: italic;
+  padding-left: 2px;
+  white-space: nowrap;
+}
+
 .gendly-badge {
   background: rgba(255,255,255,0.08);
   border-radius: 4px;

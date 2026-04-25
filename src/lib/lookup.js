@@ -149,7 +149,8 @@ export async function lookup(word) {
         gender: g,
         plural: entry.plural,
         en: entry.en,
-        example: entry.ex
+        example: entry.ex,
+        alt: entry.alt || null
       };
     }
   }
