@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Gendly — Word Gender Finder",
-  "short_name": "Gendly",
+  "name": "LaLe — French Word Gender",
+  "short_name": "LaLe",
   "version": "0.1.0",
   "description": "Instantly find the grammatical gender of French words. Hover over any word or search in the popup. 1700+ words with Wiktionary fallback.",
   "action": {
     "default_popup": "src/popup/popup.html",
-    "default_title": "Gendly — find word gender",
+    "default_title": "LaLe — find word gender",
     "default_icon": {
       "16": "icons/icon-16.png",
       "32": "icons/icon-32.png",

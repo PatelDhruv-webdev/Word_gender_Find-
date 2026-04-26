@@ -74,15 +74,15 @@ body {
   margin-bottom: 32px;
 }
 .brand-mark {
-  width: 36px; height: 36px;
+  width: 44px; height: 36px;
   display: grid; place-items: center;
   border-radius: 10px;
-  background: linear-gradient(135deg, #7c3aed, #ec4899 55%, #06b6d4);
+  background: #111113;
   color: #fff;
   font-weight: 800;
-  font-size: 18px;
+  font-size: 13px;
+  letter-spacing: -0.2px;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px -4px rgba(124,58,237,0.5);
 }
 .brand-text h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
 .brand-text p { margin: 2px 0 0; color: var(--text-soft); font-size: 13px; }

@@ -198,7 +198,8 @@ async function renderResult(res) {
   const card = tpl.querySelector(".card");
   card.style.setProperty("--gender-color", meta.color);
 
-  // gender banner — the first thing eyes land on
+  // gender pill (M / F badge) + label
+  tpl.querySelector(".gender-pill").textContent = res.gender === "m" ? "M" : "F";
   tpl.querySelector(".gender-label").textContent = meta.label;
 
   // article + word
