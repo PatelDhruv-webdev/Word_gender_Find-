@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- rounded square background — neutral dark -->
+  <rect width="128" height="128" rx="26" fill="#111113"/>
+
+  <!-- thin vertical divider -->
+  <rect x="61" y="28" width="2" height="72" rx="1" fill="#ffffff" opacity="0.18"/>
+
+  <!-- "la" — feminine rose -->
+  <text x="30" y="83"
+        text-anchor="middle"
+        font-family="-apple-system, 'SF Pro Display', system-ui, sans-serif"
+        font-weight="800"
+        font-size="52"
+        fill="#d4237a"
+        letter-spacing="-1">la</text>
+
+  <!-- "le" — masculine blue -->
+  <text x="96" y="83"
+        text-anchor="middle"
+        font-family="-apple-system, 'SF Pro Display', system-ui, sans-serif"
+        font-weight="800"
+        font-size="52"
+        fill="#1d6ff3"
+        letter-spacing="-1">le</text>
+</svg>

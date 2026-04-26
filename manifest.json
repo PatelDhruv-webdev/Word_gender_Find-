@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "LaLe — French Word Gender",
+  "short_name": "LaLe",
+  "version": "0.1.0",
+  "description": "Instantly find the grammatical gender of French words. Hover over any word or search in the popup. 1700+ words with Wiktionary fallback.",
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "LaLe — find word gender",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "background": {
+    "service_worker": "src/background/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/content.js"],
+      "css": ["src/content/content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": ["contextMenus", "storage", "activeTab"],
+  "host_permissions": ["https://en.wiktionary.org/*"],
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": true
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["src/data/*.json"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
