@@ -1,4 +1,10 @@
-import { getSettings, setSettings, clearHistory } from "../lib/storage.js";
+import {
+  clearFavorites,
+  clearHistory,
+  clearWikiCache,
+  getSettings,
+  setSettings,
+} from "../lib/storage.js";
 
 let statusTimer = null;
 
@@ -6,25 +12,25 @@ function applyTheme(theme) {
   document.documentElement.dataset.theme = theme || "auto";
 }
 
-function showSaved(msg = "Saved.") {
+function showStatus(msg = "Saved.") {
   const el = document.querySelector("#save-status");
   if (!el) return;
   el.textContent = msg;
   clearTimeout(statusTimer);
-  statusTimer = setTimeout(() => { el.textContent = ""; }, 1800);
+  statusTimer = setTimeout(() => { el.textContent = ""; }, 2200);
 }
 
 async function updateSettings(patch) {
   const s = await setSettings(patch);
   applyTheme(s.theme);
-  showSaved();
+  showStatus();
 }
 
 async function init() {
   const settings = await getSettings();
   applyTheme(settings.theme);
 
-  // theme radio buttons
+  // Theme radio buttons
   document.querySelectorAll('input[name="theme"]').forEach((opt) => {
     opt.checked = opt.value === (settings.theme || "auto");
     opt.addEventListener("change", () => {
@@ -32,16 +38,7 @@ async function init() {
     });
   });
 
-  // context menu toggle
-  const ctxEl = document.querySelector("#context-menu-enabled");
-  if (ctxEl) {
-    ctxEl.checked = settings.contextMenuEnabled !== false;
-    ctxEl.addEventListener("change", () =>
-      updateSettings({ contextMenuEnabled: ctxEl.checked })
-    );
-  }
-
-  // hover tooltip toggle
+  // Hover tooltip toggle
   const hoverEl = document.querySelector("#hover-enabled");
   if (hoverEl) {
     hoverEl.checked = settings.hoverEnabled !== false;
@@ -50,16 +47,31 @@ async function init() {
     );
   }
 
-  // clear history
+  // Context menu toggle
+  const ctxEl = document.querySelector("#context-menu-enabled");
+  if (ctxEl) {
+    ctxEl.checked = settings.contextMenuEnabled !== false;
+    ctxEl.addEventListener("change", () =>
+      updateSettings({ contextMenuEnabled: ctxEl.checked })
+    );
+  }
+
+  // Clear history
   document.querySelector("#clear-history")?.addEventListener("click", async () => {
     await clearHistory();
-    showSaved("History cleared.");
+    showStatus("History cleared.");
   });
 
-  // clear favorites
+  // Clear favorites
   document.querySelector("#clear-favorites")?.addEventListener("click", async () => {
-    await chrome.storage.local.set({ favorites: [] });
-    showSaved("Favorites cleared.");
+    await clearFavorites();
+    showStatus("Favourites cleared.");
+  });
+
+  // Clear Wiktionary cache
+  document.querySelector("#clear-wiki-cache")?.addEventListener("click", async () => {
+    await clearWikiCache();
+    showStatus("Wiktionary cache cleared.");
   });
 }
 

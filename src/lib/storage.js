@@ -1,21 +1,21 @@
 // Tiny wrapper around chrome.storage.local for settings, history, favorites.
 
 const KEYS = {
-  settings: "settings",
-  history: "history",
-  favorites: "favorites",
+  settings:      "settings",
+  history:       "history",
+  favorites:     "favorites",
   pendingLookup: "pendingLookup"
 };
 
 const DEFAULTS = {
   settings: {
-    defaultLang: "fr",
-    contextMenuEnabled: true,
-    hoverEnabled: true,
-    theme: "auto" // auto | light | dark
+    defaultLang:         "fr",
+    contextMenuEnabled:  true,
+    hoverEnabled:        true,
+    theme:               "auto"   // "auto" | "light" | "dark"
   },
-  history: [],
-  favorites: [],
+  history:       [],
+  favorites:     [],
   pendingLookup: null
 };
 
@@ -31,6 +31,7 @@ async function set(key, value) {
   });
 }
 
+// ── Settings ───────────────────────────────────────────
 export async function getSettings() {
   const s = await get(KEYS.settings);
   return { ...DEFAULTS.settings, ...s };
@@ -43,11 +44,15 @@ export async function setSettings(patch) {
   return next;
 }
 
+// ── History ────────────────────────────────────────────
 export async function pushHistory(entry) {
   const list = await get(KEYS.history);
-  // dedupe by lang+word, newest first, cap at 50
+  // dedupe by lang+word (undefined lang treated as "fr"), newest first, cap at 50
   const filtered = list.filter(
-    (e) => !(e.lang === entry.lang && e.word === entry.word)
+    (e) => !(
+      (e.lang || "fr") === (entry.lang || "fr") &&
+      e.word === entry.word
+    )
   );
   filtered.unshift({ ...entry, at: Date.now() });
   await set(KEYS.history, filtered.slice(0, 50));
@@ -61,33 +66,47 @@ export async function clearHistory() {
   await set(KEYS.history, []);
 }
 
+// ── Favorites ──────────────────────────────────────────
 export async function toggleFavorite(entry) {
   const list = await get(KEYS.favorites);
   const idx = list.findIndex(
-    (e) => e.lang === entry.lang && e.word === entry.word
+    (e) => (e.lang || "fr") === (entry.lang || "fr") && e.word === entry.word
   );
   if (idx >= 0) list.splice(idx, 1);
   else list.unshift({ ...entry, at: Date.now() });
   await set(KEYS.favorites, list);
-  return idx < 0; // returns whether it's now favorited
+  return idx < 0; // true = now favorited
 }
 
 export async function getFavorites() {
   return get(KEYS.favorites);
 }
 
-export async function isFavorite(lang, word) {
-  const list = await get(KEYS.favorites);
-  return list.some((e) => e.lang === lang && e.word === word);
+export async function clearFavorites() {
+  await set(KEYS.favorites, []);
 }
 
+export async function isFavorite(lang, word) {
+  const list = await get(KEYS.favorites);
+  return list.some((e) => (e.lang || "fr") === lang && e.word === word);
+}
+
+// ── Wiktionary cache ────────────────────────────────────
+export async function clearWikiCache() {
+  const all = await new Promise((resolve) =>
+    chrome.storage.local.get(null, resolve)
+  );
+  const wikiKeys = Object.keys(all).filter((k) => k.startsWith("wiki_"));
+  if (wikiKeys.length) {
+    await new Promise((resolve) =>
+      chrome.storage.local.remove(wikiKeys, resolve)
+    );
+  }
+}
+
+// ── Pending lookup (context menu → popup) ──────────────
 export async function setPendingLookup(word) {
-  const next = word
-    ? {
-        word: word.trim(),
-        at: Date.now()
-      }
-    : null;
+  const next = word ? { word: word.trim(), at: Date.now() } : null;
   await set(KEYS.pendingLookup, next);
   return next;
 }

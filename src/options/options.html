@@ -3,75 +3,110 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>LaLe Settings</title>
+    <title>LaLe — Settings</title>
     <link rel="stylesheet" href="options.css" />
   </head>
   <body>
     <main class="page">
-      <div class="brand-header">
-        <div class="brand-mark" aria-hidden="true">la·le</div>
+
+      <!-- Brand header -->
+      <header class="brand-header">
+        <div class="brand-mark" aria-hidden="true">
+          <span class="bm-f">la</span>
+          <span class="bm-sep"></span>
+          <span class="bm-m">le</span>
+        </div>
         <div class="brand-text">
           <h1>LaLe</h1>
           <p>French Word Gender · Settings</p>
         </div>
-      </div>
+      </header>
 
-      <section class="panel" aria-label="Preferences">
+      <!-- ── Appearance ── -->
+      <section class="panel" aria-labelledby="section-appearance">
+        <h2 class="section-title" id="section-appearance">Appearance</h2>
 
-        <fieldset class="field">
+        <fieldset class="field" id="theme-options" aria-label="Theme">
           <legend class="field-label">Theme</legend>
-          <div class="theme-grid" id="theme-options">
-            <label class="theme-option">
+          <div class="theme-grid">
+            <label class="theme-card">
               <input type="radio" name="theme" value="auto" />
-              <span>Auto</span>
+              <span class="tc-preview tc-auto" aria-hidden="true"></span>
+              <span class="tc-label">Auto</span>
             </label>
-            <label class="theme-option">
+            <label class="theme-card">
               <input type="radio" name="theme" value="light" />
-              <span>Light</span>
+              <span class="tc-preview tc-light" aria-hidden="true"></span>
+              <span class="tc-label">Light</span>
             </label>
-            <label class="theme-option">
+            <label class="theme-card">
               <input type="radio" name="theme" value="dark" />
-              <span>Dark</span>
+              <span class="tc-preview tc-dark" aria-hidden="true"></span>
+              <span class="tc-label">Dark</span>
             </label>
           </div>
         </fieldset>
+      </section>
+
+      <!-- ── Behaviour ── -->
+      <section class="panel" aria-labelledby="section-behaviour">
+        <h2 class="section-title" id="section-behaviour">Behaviour</h2>
 
         <label class="toggle-row" for="hover-enabled">
-          <span>
-            <span class="field-label">Hover tooltip</span>
-            <span class="field-help">Show gender when hovering over any word on a page.</span>
-          </span>
-          <input id="hover-enabled" type="checkbox" />
+          <div class="row-info">
+            <span class="row-label">Hover tooltip</span>
+            <span class="row-help">Show word gender when hovering over text on any page.</span>
+          </div>
+          <div class="toggle-wrap">
+            <input id="hover-enabled" type="checkbox" class="toggle-input" />
+            <span class="toggle-track" aria-hidden="true"></span>
+          </div>
         </label>
 
         <label class="toggle-row" for="context-menu-enabled">
-          <span>
-            <span class="field-label">Right-click menu</span>
-            <span class="field-help">Show "Find gender" when text is selected on a page.</span>
-          </span>
-          <input id="context-menu-enabled" type="checkbox" />
+          <div class="row-info">
+            <span class="row-label">Right-click menu</span>
+            <span class="row-help">Add "Find gender" to the context menu when text is selected.</span>
+          </div>
+          <div class="toggle-wrap">
+            <input id="context-menu-enabled" type="checkbox" class="toggle-input" />
+            <span class="toggle-track" aria-hidden="true"></span>
+          </div>
         </label>
-
-        <fieldset class="field" style="border:0;padding:0;margin-top:8px">
-          <legend class="field-label">Data</legend>
-          <div class="danger-row">
-            <div>
-              <span class="field-label" style="text-transform:none;font-size:14px">Clear history</span>
-              <span class="field-help">Remove all recent lookups.</span>
-            </div>
-            <button id="clear-history" class="btn-danger">Clear</button>
-          </div>
-          <div class="danger-row">
-            <div>
-              <span class="field-label" style="text-transform:none;font-size:14px">Clear favorites</span>
-              <span class="field-help">Remove all starred words.</span>
-            </div>
-            <button id="clear-favorites" class="btn-danger">Clear</button>
-          </div>
-        </fieldset>
-
-        <p id="save-status" class="save-status" aria-live="polite"></p>
       </section>
+
+      <!-- ── Data ── -->
+      <section class="panel" aria-labelledby="section-data">
+        <h2 class="section-title" id="section-data">Data</h2>
+
+        <div class="data-row">
+          <div class="row-info">
+            <span class="row-label">Search history</span>
+            <span class="row-help">Remove all recent lookups from the popup.</span>
+          </div>
+          <button id="clear-history" class="btn-danger">Clear</button>
+        </div>
+
+        <div class="data-row">
+          <div class="row-info">
+            <span class="row-label">Favourites</span>
+            <span class="row-help">Remove all starred words.</span>
+          </div>
+          <button id="clear-favorites" class="btn-danger">Clear</button>
+        </div>
+
+        <div class="data-row">
+          <div class="row-info">
+            <span class="row-label">Wiktionary cache</span>
+            <span class="row-help">Clear cached results fetched from Wiktionary.</span>
+          </div>
+          <button id="clear-wiki-cache" class="btn-danger">Clear</button>
+        </div>
+      </section>
+
+      <!-- Save feedback -->
+      <p id="save-status" class="save-status" aria-live="polite"></p>
+
     </main>
     <script type="module" src="options.js"></script>
   </body>

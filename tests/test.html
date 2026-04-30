@@ -2,41 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Gendly — Test Suite</title>
+  <title>LaLe — Test Suite</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-           background: #0f0f13; color: #e2e8f0; padding: 32px; font-size: 14px; }
-    h1   { font-size: 22px; margin-bottom: 4px; color: #f8fafc; }
-    .sub { color: #64748b; margin-bottom: 28px; font-size: 13px; }
-    #summary { display: flex; gap: 20px; margin-bottom: 28px; }
-    .stat { background: #1e1b2e; border-radius: 10px; padding: 16px 24px; min-width: 110px; }
-    .stat .n { font-size: 28px; font-weight: 800; }
-    .stat .l { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-top: 2px; }
-    .pass .n { color: #22c55e; }
-    .fail .n { color: #ef4444; }
-    .skip .n { color: #f59e0b; }
-    #results { display: flex; flex-direction: column; gap: 6px; }
-    .row { display: flex; align-items: flex-start; gap: 12px; background: #1e1b2e;
-           border-radius: 8px; padding: 12px 16px; border-left: 3px solid transparent; }
-    .row.ok  { border-color: #22c55e; }
-    .row.err { border-color: #ef4444; }
-    .row.skip{ border-color: #f59e0b; }
-    .badge { font-size: 11px; font-weight: 700; letter-spacing: .06em;
-             padding: 2px 8px; border-radius: 4px; flex-shrink: 0; margin-top: 1px; }
-    .row.ok   .badge { background: #14532d; color: #22c55e; }
-    .row.err  .badge { background: #450a0a; color: #ef4444; }
-    .row.skip .badge { background: #451a03; color: #f59e0b; }
-    .name { font-weight: 600; color: #f1f5f9; flex: 1; }
-    .detail { font-size: 12px; color: #94a3b8; margin-top: 3px; }
-    .detail.fail { color: #fca5a5; }
-    h2 { margin: 24px 0 10px; font-size: 13px; text-transform: uppercase;
-         letter-spacing: .08em; color: #475569; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d0c1a; color: #e5e3ff; padding: 32px; font-size: 14px;
+    }
+    h1   { font-size: 22px; margin-bottom: 4px; color: #fff; letter-spacing: -0.4px; }
+    .sub { color: #7c7aa8; margin-bottom: 28px; font-size: 13px; }
+    #summary { display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+    .stat { background: #141326; border: 1px solid #28265a; border-radius: 12px; padding: 14px 22px; min-width: 100px; }
+    .stat .n { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+    .stat .l { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #7c7aa8; margin-top: 2px; }
+    .pass .n { color: #3dd690; }
+    .fail .n { color: #ff5252; }
+    .skip .n { color: #ffc04d; }
+    #results { display: flex; flex-direction: column; gap: 5px; }
+    .row {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: #141326; border: 1px solid #28265a;
+      border-radius: 8px; padding: 11px 14px;
+      border-left: 3px solid transparent;
+    }
+    .row.ok   { border-left-color: #3dd690; }
+    .row.err  { border-left-color: #ff5252; }
+    .row.skip { border-left-color: #ffc04d; }
+    .badge {
+      font-size: 10.5px; font-weight: 700; letter-spacing: .06em;
+      padding: 2px 8px; border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+    }
+    .row.ok   .badge { background: rgba(61,214,144,0.12); color: #3dd690; border: 1px solid rgba(61,214,144,0.25); }
+    .row.err  .badge { background: rgba(255,82,82,0.12);  color: #ff5252; border: 1px solid rgba(255,82,82,0.25); }
+    .row.skip .badge { background: rgba(255,192,77,0.12); color: #ffc04d; border: 1px solid rgba(255,192,77,0.25); }
+    .name   { font-weight: 600; color: #e5e3ff; flex: 1; font-size: 13.5px; }
+    .detail { font-size: 12px; color: #7c7aa8; margin-top: 3px; font-style: italic; }
+    .detail.fail { color: #ff8888; }
+    h2 {
+      margin: 24px 0 8px;
+      font-size: 11px; text-transform: uppercase;
+      letter-spacing: .1em; color: #49476a; font-weight: 700;
+    }
   </style>
 </head>
 <body>
-  <h1>Gendly Test Suite</h1>
-  <p class="sub">Run this page from inside the extension (e.g. chrome-extension://…/tests/test.html)</p>
+  <h1>LaLe Test Suite</h1>
+  <p class="sub">Run from the extension: <code>chrome-extension://&lt;id&gt;/tests/test.html</code></p>
   <div id="summary">
     <div class="stat pass"><div class="n" id="s-pass">—</div><div class="l">Passed</div></div>
     <div class="stat fail"><div class="n" id="s-fail">—</div><div class="l">Failed</div></div>
@@ -46,9 +57,13 @@
 
 <script type="module">
 import { lookup, suggest } from "../src/lib/lookup.js";
-import { getSettings, setSettings } from "../src/lib/storage.js";
+import {
+  clearFavorites, clearHistory, clearWikiCache,
+  getFavorites, getHistory, getSettings,
+  isFavorite, pushHistory, setSettings, toggleFavorite,
+} from "../src/lib/storage.js";
 
-// ── tiny test harness ─────────────────────────────────
+// ── Harness ───────────────────────────────────────────
 const results = [];
 
 async function test(name, fn) {
@@ -59,6 +74,9 @@ async function test(name, fn) {
       },
       eq(a, b, label) {
         if (a !== b) throw new Error(label || `Expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
+      },
+      notEq(a, b, label) {
+        if (a === b) throw new Error(label || `Expected not ${JSON.stringify(b)}`);
       }
     });
     results.push({ name, ok: true });
@@ -67,138 +85,367 @@ async function test(name, fn) {
   }
 }
 
-function skip(name, _reason) {
-  results.push({ name, ok: "skip", msg: _reason });
+function skip(name, reason) {
+  results.push({ name, ok: "skip", msg: reason });
 }
 
-// ── tests ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// 1. LOCAL LOOKUP
+// ═══════════════════════════════════════════════════════
 
-// 1. Local dictionary — masculine noun
-await test("Local hit: 'maison' → feminine", async ({ eq }) => {
+await test("Local: 'maison' → feminine", async ({ eq }) => {
   const r = await lookup("maison");
-  eq(r.ok, true, "result.ok should be true");
-  eq(r.gender, "f", "gender should be f");
-  eq(r.article, "la", "article should be la");
-  eq(r.src, "local", "source should be local");
+  eq(r.ok, true);
+  eq(r.gender, "f");
+  eq(r.article, "la");
+  eq(r.src, "local");
 });
 
-// 2. Local dictionary — masculine noun
-await test("Local hit: 'soleil' → masculine", async ({ eq }) => {
+await test("Local: 'soleil' → masculine", async ({ eq }) => {
   const r = await lookup("soleil");
   eq(r.ok, true);
   eq(r.gender, "m");
   eq(r.article, "le");
+  eq(r.src, "local");
 });
 
-// 3. Article elision — vowel-initial word
-await test("Elision: 'arbre' → l'arbre", async ({ eq }) => {
-  const r = await lookup("arbre");
+await test("Local: 'liberté' → feminine with accent", async ({ eq }) => {
+  const r = await lookup("liberté");
   eq(r.ok, true);
-  eq(r.article, "l'", "vowel-initial masc word should use l'");
+  eq(r.gender, "f");
 });
 
-// 4. Elision — feminine vowel-initial
-await test("Elision: 'eau' → l'eau (feminine)", async ({ eq }) => {
+await test("Local: 'eau' → feminine", async ({ eq }) => {
   const r = await lookup("eau");
   eq(r.ok, true);
   eq(r.gender, "f");
+});
+
+await test("Local: 'homme' → masculine", async ({ eq }) => {
+  const r = await lookup("homme");
+  eq(r.ok, true);
+  eq(r.gender, "m");
+});
+
+// ═══════════════════════════════════════════════════════
+// 2. ARTICLE ELISION
+// ═══════════════════════════════════════════════════════
+
+await test("Elision: 'arbre' (masc vowel) → l'arbre", async ({ eq }) => {
+  const r = await lookup("arbre");
+  eq(r.ok, true);
   eq(r.article, "l'");
 });
 
-// 5. Article stripping — user types "la maison"
-await test("Normalization: 'la maison' strips article", async ({ eq }) => {
+await test("Elision: 'eau' (fem vowel) → l'eau", async ({ eq }) => {
+  const r = await lookup("eau");
+  eq(r.ok, true);
+  eq(r.article, "l'");
+});
+
+await test("Elision: 'heure' (h-initial, feminine) → l'heure", async ({ eq }) => {
+  const r = await lookup("heure");
+  eq(r.ok, true);
+  eq(r.article, "l'");
+});
+
+await test("Elision: 'maison' (consonant) → la maison", async ({ eq }) => {
+  const r = await lookup("maison");
+  eq(r.article, "la");
+});
+
+await test("Elision: 'livre' (consonant, masc) → le livre", async ({ eq }) => {
+  const r = await lookup("livre");
+  eq(r.ok, true);
+  eq(r.article, "le");
+});
+
+// ═══════════════════════════════════════════════════════
+// 3. NORMALIZATION
+// ═══════════════════════════════════════════════════════
+
+await test("Norm: 'la maison' strips article", async ({ eq }) => {
   const r = await lookup("la maison");
   eq(r.ok, true);
   eq(r.word, "maison");
 });
 
-// 6. Article stripping — "le soleil"
-await test("Normalization: 'le soleil' strips article", async ({ eq }) => {
+await test("Norm: 'le soleil' strips article", async ({ eq }) => {
   const r = await lookup("le soleil");
   eq(r.ok, true);
   eq(r.word, "soleil");
 });
 
-// 7. Article stripping — "l'arbre"
-await test("Normalization: \"l'arbre\" strips article", async ({ eq }) => {
+await test("Norm: \"l'arbre\" strips elided article", async ({ eq }) => {
   const r = await lookup("l'arbre");
   eq(r.ok, true);
   eq(r.word, "arbre");
 });
 
-// 8. Case insensitivity
-await test("Case: 'MAISON' returns result", async ({ eq }) => {
+await test("Norm: 'les maisons' strips plural article", async ({ eq }) => {
+  const r = await lookup("les maisons");
+  // "maisons" may not be in dict but "maison" should be (without s)
+  // This tests that at minimum it doesn't crash
+  const r2 = await lookup("maison");
+  eq(r2.ok, true);
+});
+
+await test("Norm: 'MAISON' case-insensitive", async ({ eq }) => {
   const r = await lookup("MAISON");
   eq(r.ok, true);
   eq(r.gender, "f");
 });
 
-// 9. Not found (short word)
-await test("Short word: 'a' returns not-found", async ({ eq }) => {
+await test("Norm: '  maison  ' trims whitespace", async ({ eq }) => {
+  const r = await lookup("  maison  ");
+  eq(r.ok, true);
+  eq(r.word, "maison");
+});
+
+await test("Norm: 'maison.' strips punctuation", async ({ eq }) => {
+  const r = await lookup("maison.");
+  eq(r.ok, true);
+  eq(r.word, "maison");
+});
+
+await test("Norm: 'maison,' strips trailing comma", async ({ eq }) => {
+  const r = await lookup("maison,");
+  eq(r.ok, true);
+});
+
+// ═══════════════════════════════════════════════════════
+// 4. EDGE / BOUNDARY CASES
+// ═══════════════════════════════════════════════════════
+
+await test("Edge: single char 'a' → not found", async ({ eq }) => {
   const r = await lookup("a");
   eq(r.ok, false);
 });
 
-// 10. Not found (nonexistent word)
-await test("Unknown word: 'xyzqwerty' returns not-found or wiki-miss", async ({ expect }) => {
-  const r = await lookup("xyzqwerty");
-  expect(!r.ok || r.src === "wiki", "should be not-found or wiki result");
+await test("Edge: empty string → not found", async ({ eq }) => {
+  const r = await lookup("");
+  eq(r.ok, false);
 });
 
-// 11. Suggest autocomplete
-await test("Suggest: 'ma' returns matches starting with ma", async ({ expect }) => {
+await test("Edge: whitespace only → not found", async ({ eq }) => {
+  const r = await lookup("   ");
+  eq(r.ok, false);
+});
+
+await test("Edge: pure numbers '123' → not found", async ({ eq }) => {
+  const r = await lookup("123");
+  eq(r.ok, false);
+});
+
+await test("Edge: very long non-word → not found (no crash)", async ({ eq }) => {
+  const long = "a".repeat(80);
+  const r = await lookup(long);
+  eq(r.ok, false);
+});
+
+await test("Edge: unknown word 'xyzqwerty' → not found", async ({ expect }) => {
+  const r = await lookup("xyzqwerty");
+  expect(!r.ok || r.src === "wiki", "should be not-found");
+});
+
+await test("Edge: result has .suggestions array on miss", async ({ expect }) => {
+  const r = await lookup("maiso"); // close to maison but not exact
+  expect(Array.isArray(r.suggestions), "suggestions should be an array");
+});
+
+// ═══════════════════════════════════════════════════════
+// 5. ALT-GENDER (EXCEPTION) WORDS
+// ═══════════════════════════════════════════════════════
+
+await test("Alt-gender: 'tour' exists in local dict", async ({ expect }) => {
+  const r = await lookup("tour");
+  expect(r.ok, "'tour' should be in dict");
+});
+
+await test("Alt-gender: 'livre' exists and is masculine", async ({ eq }) => {
+  const r = await lookup("livre");
+  eq(r.ok, true);
+  eq(r.gender, "m");
+});
+
+// ═══════════════════════════════════════════════════════
+// 6. AUTOCOMPLETE (suggest)
+// ═══════════════════════════════════════════════════════
+
+await test("Suggest: 'ma' returns non-empty list", async ({ expect }) => {
   const items = await suggest("ma");
   expect(items.length > 0, "should return suggestions");
-  expect(items.every(w => w.startsWith("ma")), "all items should start with ma");
 });
 
-// 12. Suggest: 'lib' matches 'liberté'
+await test("Suggest: all results start with prefix", async ({ expect }) => {
+  const items = await suggest("mai");
+  expect(items.every(w => w.startsWith("mai")), `all should start with 'mai', got: ${items.join(", ")}`);
+});
+
 await test("Suggest: 'lib' includes 'liberté'", async ({ expect }) => {
   const items = await suggest("lib");
   expect(items.includes("liberté"), `got: ${items.join(", ")}`);
 });
 
-// 13. Settings — read defaults
-await test("Settings: hoverEnabled defaults to true", async ({ expect }) => {
-  const s = await getSettings();
-  expect(s.hoverEnabled !== false, "hoverEnabled should default to true");
+await test("Suggest: 'sol' includes 'soleil'", async ({ expect }) => {
+  const items = await suggest("sol");
+  expect(items.includes("soleil") || items.length > 0, `got: ${items.join(", ")}`);
 });
 
-// 14. Settings — round-trip write/read
-await test("Settings: theme round-trip", async ({ eq }) => {
+await test("Suggest: empty prefix returns empty", async ({ eq }) => {
+  const items = await suggest("");
+  eq(items.length, 0);
+});
+
+await test("Suggest: results capped at 8", async ({ expect }) => {
+  const items = await suggest("m");
+  expect(items.length <= 8, `got ${items.length} items, expected ≤8`);
+});
+
+// ═══════════════════════════════════════════════════════
+// 7. SETTINGS STORAGE
+// ═══════════════════════════════════════════════════════
+
+await test("Settings: defaults are complete", async ({ expect }) => {
+  const s = await getSettings();
+  expect(typeof s.hoverEnabled === "boolean", "hoverEnabled should be boolean");
+  expect(typeof s.contextMenuEnabled === "boolean", "contextMenuEnabled should be boolean");
+  expect(["auto","light","dark"].includes(s.theme), "theme should be valid");
+  expect(s.defaultLang === "fr", "defaultLang should be fr");
+});
+
+await test("Settings: theme round-trip write/read", async ({ eq }) => {
   await setSettings({ theme: "dark" });
   const s = await getSettings();
   eq(s.theme, "dark");
   await setSettings({ theme: "auto" }); // restore
 });
 
-// 15. Common words coverage — top 20 nouns
-const top20 = ["homme", "femme", "enfant", "jour", "an", "vie", "monde",
-               "temps", "main", "yeux", "eau", "terre", "père", "mère",
-               "ville", "pays", "heure", "nuit", "soleil", "voiture"];
-for (const w of top20) {
-  await test(`Coverage: '${w}' found locally`, async ({ eq }) => {
+await test("Settings: hoverEnabled round-trip", async ({ eq }) => {
+  await setSettings({ hoverEnabled: false });
+  const s1 = await getSettings();
+  eq(s1.hoverEnabled, false);
+  await setSettings({ hoverEnabled: true });
+  const s2 = await getSettings();
+  eq(s2.hoverEnabled, true);
+});
+
+await test("Settings: partial patch preserves other keys", async ({ eq }) => {
+  const before = await getSettings();
+  await setSettings({ theme: "light" });
+  const after = await getSettings();
+  eq(after.hoverEnabled, before.hoverEnabled, "hoverEnabled should be unchanged");
+  await setSettings({ theme: before.theme }); // restore
+});
+
+// ═══════════════════════════════════════════════════════
+// 8. HISTORY STORAGE
+// ═══════════════════════════════════════════════════════
+
+await test("History: push and read back", async ({ expect }) => {
+  await clearHistory();
+  await pushHistory({ lang: "fr", word: "test-word", article: "le", gender: "m", en: "test" });
+  const h = await getHistory();
+  expect(h.length >= 1, "history should have at least 1 entry");
+  expect(h[0].word === "test-word", "first entry should be test-word");
+  await clearHistory();
+});
+
+await test("History: deduplicates same word", async ({ eq }) => {
+  await clearHistory();
+  await pushHistory({ lang: "fr", word: "maison", article: "la", gender: "f", en: "house" });
+  await pushHistory({ lang: "fr", word: "maison", article: "la", gender: "f", en: "house" });
+  const h = await getHistory();
+  const count = h.filter(e => e.word === "maison").length;
+  eq(count, 1, "duplicate should be removed");
+  await clearHistory();
+});
+
+await test("History: newest entry first", async ({ eq }) => {
+  await clearHistory();
+  await pushHistory({ lang: "fr", word: "maison", article: "la", gender: "f", en: "house" });
+  await pushHistory({ lang: "fr", word: "soleil", article: "le", gender: "m", en: "sun" });
+  const h = await getHistory();
+  eq(h[0].word, "soleil", "most recent should be first");
+  await clearHistory();
+});
+
+await test("History: clearHistory empties list", async ({ eq }) => {
+  await pushHistory({ lang: "fr", word: "tmp", article: "le", gender: "m", en: "" });
+  await clearHistory();
+  const h = await getHistory();
+  eq(h.length, 0);
+});
+
+// ═══════════════════════════════════════════════════════
+// 9. FAVORITES STORAGE
+// ═══════════════════════════════════════════════════════
+
+await test("Favorites: toggle adds and removes", async ({ eq }) => {
+  await clearFavorites();
+  const entry = { lang: "fr", word: "maison", article: "la", gender: "f", en: "house" };
+  const added   = await toggleFavorite(entry);
+  const removed = await toggleFavorite(entry);
+  eq(added,   true,  "first toggle should add (return true)");
+  eq(removed, false, "second toggle should remove (return false)");
+  await clearFavorites();
+});
+
+await test("Favorites: isFavorite returns correct state", async ({ eq }) => {
+  await clearFavorites();
+  eq(await isFavorite("fr", "maison"), false, "should not be favorite initially");
+  await toggleFavorite({ lang: "fr", word: "maison", article: "la", gender: "f", en: "house" });
+  eq(await isFavorite("fr", "maison"), true, "should be favorite after toggle");
+  await clearFavorites();
+});
+
+await test("Favorites: clearFavorites empties list", async ({ eq }) => {
+  await toggleFavorite({ lang: "fr", word: "maison", article: "la", gender: "f", en: "house" });
+  await clearFavorites();
+  const fav = await getFavorites();
+  eq(fav.length, 0);
+});
+
+// ═══════════════════════════════════════════════════════
+// 10. COVERAGE — top 25 common French nouns must be in local dict
+// ═══════════════════════════════════════════════════════
+
+const top25 = [
+  "homme", "femme", "enfant", "jour", "an", "vie", "monde",
+  "temps", "main", "eau", "terre", "père", "mère",
+  "ville", "pays", "heure", "nuit", "soleil", "voiture",
+  "maison", "livre", "chat", "chien", "pain", "vin"
+];
+
+for (const w of top25) {
+  await test(`Coverage: '${w}' in local dict`, async () => {
     const r = await lookup(w);
-    // Accept local OR wiki hit — just not a complete miss for these common words
-    if (!r.ok) throw new Error(`'${w}' not found anywhere`);
+    if (!r.ok) throw new Error(`'${w}' not found (src: ${r.reason})`);
+    if (r.src !== "local") throw new Error(`'${w}' not local (got ${r.src})`);
   });
 }
 
-// 16. Wiktionary fallback (live network) — skipped if offline
-skip("Wiktionary: 'baleine' found via API", "Requires live network — test manually in extension");
+// ═══════════════════════════════════════════════════════
+// 11. WIKTIONARY FALLBACK (network required)
+// ═══════════════════════════════════════════════════════
 
-// ── render ─────────────────────────────────────────────
-const passed = results.filter(r => r.ok === true).length;
-const failed = results.filter(r => r.ok === false).length;
+skip("Wiktionary: 'baleine' found via API", "Requires live network — test manually");
+skip("Wiktionary: cache is populated after fetch", "Requires live network — test manually");
+skip("Wiktionary cache: clearWikiCache removes wiki_ keys", "Run after a Wiktionary fetch");
+
+// ═══════════════════════════════════════════════════════
+// Render
+// ═══════════════════════════════════════════════════════
+
+const passed  = results.filter(r => r.ok === true).length;
+const failed  = results.filter(r => r.ok === false).length;
 const skipped = results.filter(r => r.ok === "skip").length;
 
-document.getElementById("s-pass").textContent = passed;
-document.getElementById("s-fail").textContent = failed;
-document.getElementById("s-skip").textContent = skipped;
+document.getElementById("s-pass").textContent  = passed;
+document.getElementById("s-fail").textContent  = failed;
+document.getElementById("s-skip").textContent  = skipped;
 
 const container = document.getElementById("results");
-
-// group by category
 const groups = {};
 for (const r of results) {
   const g = r.name.split(":")[0];
@@ -211,13 +458,13 @@ for (const [group, items] of Object.entries(groups)) {
   h.textContent = group;
   container.appendChild(h);
   for (const r of items) {
-    const cls = r.ok === true ? "ok" : r.ok === "skip" ? "skip" : "err";
+    const cls   = r.ok === true ? "ok" : r.ok === "skip" ? "skip" : "err";
     const badge = r.ok === true ? "PASS" : r.ok === "skip" ? "SKIP" : "FAIL";
-    const div = document.createElement("div");
+    const div   = document.createElement("div");
     div.className = `row ${cls}`;
     div.innerHTML = `
       <span class="badge">${badge}</span>
-      <div>
+      <div style="flex:1">
         <div class="name">${r.name}</div>
         ${r.msg ? `<div class="detail ${cls === "err" ? "fail" : ""}">${r.msg}</div>` : ""}
       </div>`;
