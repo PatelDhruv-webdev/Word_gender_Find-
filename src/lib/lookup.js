@@ -4,8 +4,8 @@
 export const LANG = "fr";
 
 export const GENDER_META = {
-  m: { label: "Masculine", color: "#3b82f6" },
-  f: { label: "Feminine",  color: "#ec4899" }
+  m: { label: "Masculine", color: "#d4920a" },  /* amber — no blue */
+  f: { label: "Feminine",  color: "#e0507a" }   /* rose */
 };
 
 // article with elision for vowel-initial words

@@ -1,25 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <!-- rounded square background — neutral dark -->
-  <rect width="128" height="128" rx="26" fill="#111113"/>
+  <!-- Background — deep near-black -->
+  <rect width="128" height="128" rx="28" fill="#09090e"/>
 
-  <!-- thin vertical divider -->
-  <rect x="61" y="28" width="2" height="72" rx="1" fill="#ffffff" opacity="0.18"/>
+  <!-- Subtle diagonal separator -->
+  <line x1="10" y1="118" x2="118" y2="10"
+        stroke="#252545" stroke-width="1.5" stroke-linecap="round"/>
 
-  <!-- "la" — feminine rose -->
-  <text x="30" y="83"
-        text-anchor="middle"
-        font-family="-apple-system, 'SF Pro Display', system-ui, sans-serif"
-        font-weight="800"
-        font-size="52"
-        fill="#d4237a"
-        letter-spacing="-1">la</text>
+  <!-- "la" — feminine rose, upper-left -->
+  <text x="14" y="62"
+        font-family="'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif"
+        font-weight="900" font-size="44" letter-spacing="-2"
+        fill="#e0507a">la</text>
 
-  <!-- "le" — masculine blue -->
-  <text x="96" y="83"
-        text-anchor="middle"
-        font-family="-apple-system, 'SF Pro Display', system-ui, sans-serif"
-        font-weight="800"
-        font-size="52"
-        fill="#1d6ff3"
-        letter-spacing="-1">le</text>
+  <!-- "le" — masculine amber/gold, lower-right -->
+  <text x="60" y="110"
+        font-family="'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif"
+        font-weight="900" font-size="44" letter-spacing="-2"
+        fill="#d4920a">le</text>
 </svg>

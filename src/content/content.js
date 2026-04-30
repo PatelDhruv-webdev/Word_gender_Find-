@@ -2,7 +2,7 @@
 // Deliberately has NO imports (content scripts cannot be ES modules).
 // Local dict is fetched directly; background is only used for Wiktionary fallback.
 
-const GENDER_COLOR = { m: "#5b8aff", f: "#ff5b8a" };
+const GENDER_COLOR = { m: "#d4920a", f: "#e0507a" };  /* amber / rose — no blue */
 const HOVER_DELAY  = 380;   // ms after cursor stops before lookup fires
 const DISMISS_DELAY = 3200; // ms before tooltip auto-hides
 
