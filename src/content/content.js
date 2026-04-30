@@ -2,7 +2,7 @@
 // Deliberately has NO imports (content scripts cannot be ES modules).
 // Local dict is fetched directly; background is only used for Wiktionary fallback.
 
-const GENDER_COLOR = { m: "#3b82f6", f: "#ec4899" };
+const GENDER_COLOR = { m: "#5b8aff", f: "#ff5b8a" };
 const HOVER_DELAY  = 380;   // ms after cursor stops before lookup fires
 const DISMISS_DELAY = 3200; // ms before tooltip auto-hides
 
@@ -175,7 +175,7 @@ function showTooltip(res, cursorX, cursorY) {
   tip.className = "gendly-tooltip";
   tip.setAttribute("role", "tooltip");
   tip.append(
-    mkEl("span", "gendly-dot",     { style: `background:${color}` }),
+    mkEl("span", "gendly-dot",     { style: `background:${color};box-shadow:0 0 7px ${color}` }),
     mkEl("span", "gendly-gender",  { text: label,       style: `color:${color}` }),
     mkEl("span", "gendly-sep"),
     mkEl("span", "gendly-article", { text: res.article, style: `color:${color}` }),

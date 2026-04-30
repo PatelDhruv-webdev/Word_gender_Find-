@@ -21,20 +21,22 @@ const state = {
 };
 
 const els = {
-  input: $("#word-input"),
-  inputWrap: $(".input-wrap"),
-  clear: $("#clear-btn"),
+  input:       $("#word-input"),
+  inputWrap:   $(".input-wrap"),
+  clear:       $("#clear-btn"),
   suggestions: $("#suggestions"),
-  result: $("#result"),
-  tabs: $$(".tab"),
-  list: $("#list"),
-  options: $("#open-options")
+  result:      $("#result"),
+  tabs:        $$(".tab"),
+  list:        $("#list"),
+  options:     $("#open-options"),
+  hoverToggle: $("#hover-toggle"),
 };
 
-// ── init ───────────────────────────────────────────────
+// ── Init ───────────────────────────────────────────────
 async function init() {
   const settings = await getSettings();
   applyTheme(settings.theme);
+  updateHoverToggle(settings.hoverEnabled !== false);
   renderEmpty();
   await renderList();
 
@@ -55,7 +57,22 @@ function applyTheme(theme) {
   document.documentElement.dataset.theme = theme || "auto";
 }
 
-// ── events ─────────────────────────────────────────────
+// ── Hover toggle ────────────────────────────────────────
+function updateHoverToggle(enabled) {
+  els.hoverToggle.classList.toggle("is-on", enabled);
+  els.hoverToggle.title = enabled
+    ? "Hover tooltip: ON — click to disable"
+    : "Hover tooltip: OFF — click to enable";
+}
+
+els.hoverToggle.addEventListener("click", async () => {
+  const settings = await getSettings();
+  const next = settings.hoverEnabled === false ? true : false;
+  await setSettings({ hoverEnabled: next });
+  updateHoverToggle(next);
+});
+
+// ── Events ─────────────────────────────────────────────
 els.input.addEventListener("input", (e) => {
   const v = e.target.value;
   els.inputWrap.classList.toggle("has-text", v.length > 0);
@@ -102,14 +119,13 @@ els.tabs.forEach((t) =>
 
 els.options.addEventListener("click", () => chrome.runtime.openOptionsPage());
 
-// ── querying ───────────────────────────────────────────
+// ── Querying ───────────────────────────────────────────
 let queryToken = 0;
 
 async function handleQuery(word, { commit }) {
   state.query = word;
   const myToken = ++queryToken;
 
-  // autocomplete suggestions (local dict only, fast)
   if (!commit && word.length >= 1 && word.length <= 14) {
     const items = await suggest(word);
     if (myToken !== queryToken) return;
@@ -118,7 +134,6 @@ async function handleQuery(word, { commit }) {
     hideSuggestions();
   }
 
-  // show loading shimmer for Wiktionary queries (> ~300ms)
   const shimmerTimer = setTimeout(() => {
     if (myToken === queryToken) els.result.classList.add("loading");
   }, 280);
@@ -132,7 +147,13 @@ async function handleQuery(word, { commit }) {
   if (res.ok) {
     renderResult(res);
     if (commit) {
-      pushHistory({ word: res.word, article: res.article, gender: res.gender, en: res.en });
+      pushHistory({
+        lang: "fr",
+        word: res.word,
+        article: res.article,
+        gender: res.gender,
+        en: res.en,
+      });
       renderList();
     }
   } else if (commit || word.length >= 3) {
@@ -150,7 +171,10 @@ function showSuggestions(items) {
     .join("");
   els.suggestions.hidden = false;
   $$("#suggestions li").forEach((li) =>
-    li.addEventListener("mousedown", (e) => { e.preventDefault(); pickSuggestion(li.dataset.word); })
+    li.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      pickSuggestion(li.dataset.word);
+    })
   );
 }
 
@@ -163,7 +187,8 @@ function hideSuggestions() {
 function moveSuggestion(delta) {
   if (!state.suggestionItems.length) return;
   state.suggestionIndex =
-    (state.suggestionIndex + delta + state.suggestionItems.length) % state.suggestionItems.length;
+    (state.suggestionIndex + delta + state.suggestionItems.length) %
+    state.suggestionItems.length;
   $$("#suggestions li").forEach((li, i) =>
     li.classList.toggle("is-active", i === state.suggestionIndex)
   );
@@ -176,7 +201,7 @@ function pickSuggestion(word) {
   handleQuery(word, { commit: true });
 }
 
-// ── rendering ──────────────────────────────────────────
+// ── Rendering ──────────────────────────────────────────
 function renderEmpty() {
   els.result.innerHTML = "";
   const tpl = $("#tpl-empty").content.cloneNode(true);
@@ -198,19 +223,13 @@ async function renderResult(res) {
   const card = tpl.querySelector(".card");
   card.style.setProperty("--gender-color", meta.color);
 
-  // gender pill (M / F badge) + label
-  tpl.querySelector(".gender-pill").textContent = res.gender === "m" ? "M" : "F";
+  tpl.querySelector(".gender-pill").textContent  = res.gender === "m" ? "M" : "F";
   tpl.querySelector(".gender-label").textContent = meta.label;
+  tpl.querySelector(".article").textContent      = res.article;
+  tpl.querySelector(".word").textContent         = res.word;
+  tpl.querySelector(".translation").textContent  = res.en || "";
+  tpl.querySelector(".plural").textContent       = res.plural || "—";
 
-  // article + word
-  tpl.querySelector(".article").textContent = res.article;
-  tpl.querySelector(".word").textContent = res.word;
-
-  // translation + plural
-  tpl.querySelector(".translation").textContent = res.en || "";
-  tpl.querySelector(".plural").textContent = res.plural || "—";
-
-  // example (hide row if none)
   const exRow = tpl.querySelector(".example-row");
   if (res.example) {
     tpl.querySelector(".example").textContent = res.example;
@@ -218,14 +237,19 @@ async function renderResult(res) {
     exRow.hidden = true;
   }
 
-  // Wiktionary badge
   if (res.src === "wiki") tpl.querySelector(".src-badge").hidden = false;
 
   const favBtn = tpl.querySelector(".fav-btn");
   const fav = await isFavorite("fr", res.word);
   favBtn.classList.toggle("is-fav", fav);
   favBtn.addEventListener("click", async () => {
-    const now = await toggleFavorite({ lang: "fr", word: res.word, article: res.article, gender: res.gender, en: res.en });
+    const now = await toggleFavorite({
+      lang: "fr",
+      word: res.word,
+      article: res.article,
+      gender: res.gender,
+      en: res.en,
+    });
     favBtn.classList.toggle("is-fav", now);
     if (state.tab === "favorites") renderList();
   });
@@ -254,9 +278,8 @@ function renderNotFound(res) {
   } else {
     row.remove();
   }
-  // Wiktionary was already tried in lookup(); it returned not-found
-  wikiMsg.textContent = "Not found in Wiktionary either.";
 
+  wikiMsg.textContent = "Not found in Wiktionary either.";
   els.result.appendChild(tpl);
 }
 
@@ -273,14 +296,16 @@ async function renderList() {
     return;
   }
 
-  els.list.innerHTML = frOnly.map((e) => {
-    const meta = GENDER_META[e.gender] || GENDER_META.m;
-    return `<div class="list-item" data-word="${e.word}" style="--li-color:${meta.color}">
-      <span class="li-art">${e.article || ""}</span>
-      <span class="li-word">${e.word}</span>
-      <span class="li-en">${e.en || ""}</span>
-    </div>`;
-  }).join("");
+  els.list.innerHTML = frOnly
+    .map((e) => {
+      const meta = GENDER_META[e.gender] || GENDER_META.m;
+      return `<div class="list-item" data-word="${e.word}" style="--li-color:${meta.color}">
+        <span class="li-art">${e.article || ""}</span>
+        <span class="li-word">${e.word}</span>
+        <span class="li-en">${e.en || ""}</span>
+      </div>`;
+    })
+    .join("");
 
   els.list.querySelectorAll(".list-item").forEach((it) =>
     it.addEventListener("click", () => {
