@@ -2,8 +2,9 @@
   "manifest_version": 3,
   "name": "LaLe — French Word Gender",
   "short_name": "LaLe",
-  "version": "0.1.0",
-  "description": "Instantly find the grammatical gender of French words. Hover over any word or search in the popup. 1700+ words with Wiktionary fallback.",
+  "version": "1.0.0",
+  "description": "Instantly find the grammatical gender of French nouns. Hover any word or type in the popup. 2000+ words built-in with live Wiktionary fallback.",
+  "minimum_chrome_version": "88",
   "action": {
     "default_popup": "src/popup/popup.html",
     "default_title": "LaLe — find word gender",

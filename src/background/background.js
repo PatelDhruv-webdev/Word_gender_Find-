@@ -40,7 +40,9 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 // Content script sends lookup requests to avoid fetching JSON from page context
 chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   if (msg.type === "lookup") {
-    lookup(msg.word).then((res) => reply(res));
+    lookup(msg.word)
+      .then((res) => reply(res))
+      .catch(() => reply({ ok: false, reason: "error" }));
     return true;
   }
 });
