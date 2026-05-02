@@ -138,7 +138,12 @@ async function handleQuery(word, { commit }) {
     if (myToken === queryToken) els.result.classList.add("loading");
   }, 280);
 
-  const res = await lookup(word);
+  let res;
+  try {
+    res = await lookup(word);
+  } catch (_) {
+    res = { ok: false, reason: "error" };
+  }
   clearTimeout(shimmerTimer);
   els.result.classList.remove("loading");
 
@@ -316,4 +321,4 @@ async function renderList() {
   );
 }
 
-init();
+init().catch((err) => console.error("[LaLe] init failed", err));
