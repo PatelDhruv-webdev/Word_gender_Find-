@@ -1,0 +1,20 @@
+{
+  "name": "french-gender-ext",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chrome extension — hover French words to see gender, articles, and opposite-gender forms.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "playwright test",
+    "e2e:install": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@vitest/coverage-v8": "^2.1.3",
+    "fake-indexeddb": "^6.0.0",
+    "jsdom": "^25.0.1",
+    "vitest": "^2.1.3"
+  }
+}

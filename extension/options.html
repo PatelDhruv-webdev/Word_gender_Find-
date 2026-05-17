@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>French Gender — Options</title>
+  <style>
+    body {
+      font-family: -apple-system, "Segoe UI", "Helvetica Neue", sans-serif;
+      margin: 20px;
+      min-width: 280px;
+      color: #0F172A;
+    }
+    h1 { font-size: 16px; margin: 0 0 14px; }
+    label { display: block; font-size: 13px; margin-bottom: 6px; color: #475569; }
+    input[type=number] { width: 100px; padding: 6px 8px; font-size: 13px; }
+    .hint { font-size: 11px; color: #94A3B8; margin-top: 4px; }
+    .row { margin-bottom: 14px; }
+    #status { font-size: 12px; color: #16a34a; min-height: 16px; }
+  </style>
+</head>
+<body>
+  <h1>French Gender</h1>
+  <div class="row">
+    <label for="delay">Hover delay (milliseconds)</label>
+    <input id="delay" type="number" min="200" max="10000" step="100" value="2000">
+    <div class="hint">How long to hover a word before the tooltip appears. 200–10000 ms.</div>
+  </div>
+  <div id="status"></div>
+  <script src="options.js"></script>
+</body>
+</html>

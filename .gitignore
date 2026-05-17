@@ -1,0 +1,9 @@
+.DS_Store
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+.context/attachments/french-gender-ext/
+.context/data/
+*.log
